@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-16
+
 ### Added
 
 - Sure Petcare account (e-mail and password of the app): the session is kept
@@ -31,4 +33,5 @@ the notes of the version's GitHub Release.
 - "Test the connection" button with a summary of the account.
 - Feature and lock mode names in French or English.
 
-[Unreleased]: https://github.com/LM1LC3N7/gladys-surepetcare/commits/main
+[Unreleased]: https://github.com/LM1LC3N7/gladys-surepetcare/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/LM1LC3N7/gladys-surepetcare/releases/tag/v0.1.1

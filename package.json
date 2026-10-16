@@ -1,6 +1,6 @@
 {
   "name": "gladys-surepetcare",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Gladys Assistant external integration for Sure Petcare (SureFlap, SureFeed, Felaqua). Unofficial, not affiliated with Sure Petcare.",
   "type": "module",
