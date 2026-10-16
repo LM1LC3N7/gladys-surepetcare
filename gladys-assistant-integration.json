@@ -1,177 +1,320 @@
 {
   "manifest_version": 1,
   "type": "device",
-  "name": "Demo Devices Template",
+  "name": "Sure Petcare",
   "description": {
-    "en": "Starter template showing sensors, a switch, a dimmable light and a smart plug.",
-    "fr": "Template de démarrage : capteurs, interrupteur, lampe variable et prise connectée."
+    "en": "SureFlap pet doors and cat flaps, SureFeed feeders, Felaqua: pets in or out, lock modes.",
+    "fr": "Chatières SureFlap, distributeurs SureFeed, Felaqua : animaux dedans ou dehors, verrouillage."
   },
-  "version": "1.0.0",
-  "docker_image": "ghcr.io/gladysassistant/integration-template-js:1.0.0",
+  "version": "0.1.0",
+  "docker_image": "ghcr.io/lm1lc3n7/gladys-surepetcare:0.1.0",
   "gladys_version": ">=5.1.0",
-  "cover_image": "https://raw.githubusercontent.com/GladysAssistant/integration-template-js/master/cover.png",
-  "categories": ["lighting", "security", "environment"],
-  "transports": ["local", "cloud"],
+  "cover_image": "https://raw.githubusercontent.com/LM1LC3N7/gladys-surepetcare/main/cover.png",
+  "categories": ["appliances", "security"],
+  "transports": ["cloud"],
   "config_schema": [
     {
       "key": "intro",
       "type": "section",
-      "label": { "en": "Getting started", "fr": "Pour commencer" },
+      "label": {
+        "en": "Your Sure Petcare account",
+        "fr": "Votre compte Sure Petcare"
+      },
       "description": {
-        "en": "The demo weather station reads real data from the free Open-Meteo API: pick the coordinates to observe. No account, no API key.",
-        "fr": "La station météo de démonstration lit de vraies données via l'API gratuite Open-Meteo : choisissez les coordonnées à observer. Pas de compte, pas de clé d'API."
+        "en": "Brings your Sure Petcare devices into Gladys through the Sure Petcare cloud (the hub is required): whether each pet is inside or outside and since when, the lock mode of the SureFlap pet doors and cat flaps (unlocked, keep in, keep out, locked, curfew), the bowl weights and last meal of the SureFeed feeders, the water left in the Felaqua, batteries and online states, plus scene triggers when a pet goes out, comes in or eats. Enter the e-mail and password of the Sure Petcare app, then add the devices and pets from the Discovery tab. Everything is read once a minute by default. Unofficial, not affiliated with Sure Petcare.",
+        "fr": "Amène vos appareils Sure Petcare dans Gladys par le cloud Sure Petcare (le hub est nécessaire) : chaque animal à l'intérieur ou à l'extérieur et depuis quand, le mode de verrouillage des chatières SureFlap (ouverte, garder à l'intérieur, garder à l'extérieur, fermée, couvre-feu), le poids des gamelles et le dernier repas des distributeurs SureFeed, l'eau restante du Felaqua, batteries et états en ligne, et des déclencheurs de scène quand un animal sort, rentre ou mange. Saisissez l'e-mail et le mot de passe de l'application Sure Petcare, puis ajoutez appareils et animaux depuis l'onglet Découverte. Tout est lu une fois par minute par défaut. Non officiel, sans lien avec Sure Petcare."
       },
       "links": [
         {
-          "url": "https://open-meteo.com/en/docs",
-          "label": { "en": "Open-Meteo documentation", "fr": "Documentation Open-Meteo" }
+          "url": "https://github.com/LM1LC3N7/gladys-surepetcare/blob/main/docs/fr.md",
+          "label": {
+            "en": "Guide (French)",
+            "fr": "Guide (français)"
+          }
+        },
+        {
+          "url": "https://github.com/LM1LC3N7/gladys-surepetcare/blob/main/docs/en.md",
+          "label": {
+            "en": "Guide (English)",
+            "fr": "Guide (anglais)"
+          }
         }
       ]
     },
     {
-      "key": "latitude",
-      "type": "number",
-      "label": { "en": "Latitude", "fr": "Latitude" },
-      "description": {
-        "en": "Latitude used for the demo weather sensor.",
-        "fr": "Latitude utilisée par le capteur météo de démonstration."
+      "key": "email",
+      "type": "string",
+      "label": {
+        "en": "Sure Petcare e-mail",
+        "fr": "E-mail Sure Petcare"
       },
-      "placeholder": { "en": "e.g. 48.8566", "fr": "ex. 48.8566" },
-      "required": true,
-      "default": 48.8566,
-      "min": -90,
-      "max": 90
+      "placeholder": {
+        "en": "you@example.com",
+        "fr": "vous@exemple.fr"
+      },
+      "required": true
     },
     {
-      "key": "longitude",
-      "type": "number",
-      "label": { "en": "Longitude", "fr": "Longitude" },
-      "description": {
-        "en": "Longitude used for the demo weather sensor.",
-        "fr": "Longitude utilisée par le capteur météo de démonstration."
+      "key": "password",
+      "type": "secret",
+      "label": {
+        "en": "Sure Petcare password",
+        "fr": "Mot de passe Sure Petcare"
       },
-      "placeholder": { "en": "e.g. 2.3522", "fr": "ex. 2.3522" },
-      "required": true,
-      "default": 2.3522,
-      "min": -180,
-      "max": 180
+      "required": true
     },
     {
-      "key": "unit",
+      "key": "poll_interval",
+      "type": "number",
+      "label": {
+        "en": "Refresh interval (s)",
+        "fr": "Intervalle de rafraîchissement (s)"
+      },
+      "description": {
+        "en": "How often the account is read, in seconds (30 to 600). One request per read.",
+        "fr": "Fréquence de lecture du compte, en secondes (30 à 600). Une requête par lecture."
+      },
+      "required": false,
+      "default": 60,
+      "min": 30,
+      "max": 600
+    },
+    {
+      "key": "language",
       "type": "select",
-      "label": { "en": "Temperature unit", "fr": "Unité de température" },
-      "required": false,
-      "default": "celsius",
-      "options": [
-        { "value": "celsius", "label": { "en": "Celsius", "fr": "Celsius" } },
-        { "value": "fahrenheit", "label": { "en": "Fahrenheit", "fr": "Fahrenheit" } }
-      ]
-    },
-    {
-      "key": "poll_frequency",
-      "type": "number",
-      "label": { "en": "Refresh interval (s)", "fr": "Intervalle de rafraîchissement (s)" },
+      "label": {
+        "en": "Language of the feature names",
+        "fr": "Langue des noms des fonctionnalités"
+      },
       "description": {
-        "en": "How often sensors are polled, in seconds (one minute minimum).",
-        "fr": "Fréquence d'interrogation des capteurs, en secondes (une minute minimum)."
+        "en": "Used for the names of the features and of the lock modes of the devices added from now on.",
+        "fr": "Sert aux noms des fonctionnalités et des modes de verrouillage des appareils ajoutés désormais."
       },
       "required": false,
-      "default": 300,
-      "min": 60,
-      "max": 3600
+      "default": "fr",
+      "options": [
+        {
+          "value": "fr",
+          "label": {
+            "en": "French",
+            "fr": "Français"
+          }
+        },
+        {
+          "value": "en",
+          "label": {
+            "en": "English",
+            "fr": "Anglais"
+          }
+        }
+      ]
     }
   ],
   "actions": [
     {
-      "key": "test_weather",
-      "label": { "en": "Test the weather provider", "fr": "Tester le fournisseur météo" },
-      "timeout_seconds": 30
-    },
-    {
-      "key": "identify",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "fields": [
-        {
-          "key": "device",
-          "type": "select",
-          "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
-        }
-      ]
+      "key": "test_connection",
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion"
+      },
+      "timeout_seconds": 60
     }
   ],
   "scene_triggers": [
     {
-      "key": "motion_detected",
-      "label": { "en": "Motion detected", "fr": "Mouvement détecté" },
+      "key": "pet_went_out",
+      "label": {
+        "en": "Pet went out",
+        "fr": "Animal sorti"
+      },
       "description": {
-        "en": "A demo motion sensor saw a person or an animal move.",
-        "fr": "Un détecteur de démonstration a vu bouger une personne ou un animal."
+        "en": "A pet went out through a SureFlap flap (or was set outside in the app).",
+        "fr": "Un animal est sorti par une chatière SureFlap (ou a été mis dehors dans l'application)."
       },
       "fields": [
         {
-          "key": "device",
+          "key": "pet",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Sensor", "fr": "Détecteur" }
+          "label": {
+            "en": "Pet",
+            "fr": "Animal"
+          }
         },
         {
-          "key": "target",
-          "type": "multi_select",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" },
-          "options": [
-            { "value": "person", "label": { "en": "Person", "fr": "Personne" } },
-            { "value": "animal", "label": { "en": "Animal", "fr": "Animal" } }
-          ]
+          "key": "flap",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Flap",
+            "fr": "Chatière"
+          }
         }
       ],
       "variables": [
         {
-          "key": "target",
+          "key": "pet_name",
           "type": "string",
-          "label": { "en": "What moved", "fr": "Ce qui a bougé" }
+          "label": {
+            "en": "Pet name",
+            "fr": "Nom de l'animal"
+          }
+        },
+        {
+          "key": "flap_name",
+          "type": "string",
+          "label": {
+            "en": "Flap used",
+            "fr": "Chatière utilisée"
+          }
+        },
+        {
+          "key": "by_hand",
+          "type": "boolean",
+          "label": {
+            "en": "Set by hand in the app",
+            "fr": "Réglé à la main dans l'application"
+          }
+        },
+        {
+          "key": "since",
+          "type": "string",
+          "label": {
+            "en": "Time (UTC)",
+            "fr": "Heure (UTC)"
+          }
         }
       ]
-    }
-  ],
-  "scene_actions": [
+    },
     {
-      "key": "identify_device",
-      "label": { "en": "Identify a device", "fr": "Identifier un appareil" },
-      "description": {
-        "en": "Make a device signal itself (the demo light blinks).",
-        "fr": "Fait se signaler un appareil (la lampe de démonstration clignote)."
+      "key": "pet_came_in",
+      "label": {
+        "en": "Pet came in",
+        "fr": "Animal rentré"
       },
-      "timeout_seconds": 15,
+      "description": {
+        "en": "A pet came in through a SureFlap flap (or was set inside in the app).",
+        "fr": "Un animal est rentré par une chatière SureFlap (ou a été mis dedans dans l'application)."
+      },
       "fields": [
         {
-          "key": "device",
+          "key": "pet",
           "type": "select",
           "source": "devices",
-          "label": { "en": "Device", "fr": "Appareil" },
-          "required": true
+          "label": {
+            "en": "Pet",
+            "fr": "Animal"
+          }
+        },
+        {
+          "key": "flap",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Flap",
+            "fr": "Chatière"
+          }
         }
       ],
-      "outputs": [
+      "variables": [
         {
-          "key": "signalled",
+          "key": "pet_name",
+          "type": "string",
+          "label": {
+            "en": "Pet name",
+            "fr": "Nom de l'animal"
+          }
+        },
+        {
+          "key": "flap_name",
+          "type": "string",
+          "label": {
+            "en": "Flap used",
+            "fr": "Chatière utilisée"
+          }
+        },
+        {
+          "key": "by_hand",
           "type": "boolean",
-          "label": { "en": "Device signalled", "fr": "Appareil signalé" }
+          "label": {
+            "en": "Set by hand in the app",
+            "fr": "Réglé à la main dans l'application"
+          }
+        },
+        {
+          "key": "since",
+          "type": "string",
+          "label": {
+            "en": "Time (UTC)",
+            "fr": "Heure (UTC)"
+          }
         }
       ]
-    }
-  ],
-  "widgets": [
+    },
     {
-      "key": "demo_status",
-      "label": { "en": "Demo status", "fr": "État de la démo" },
-      "description": {
-        "en": "Live temperature and plug power, plug connection and observed location.",
-        "fr": "Température et puissance en direct, connexion de la prise, position observée."
+      "key": "pet_ate",
+      "label": {
+        "en": "Pet ate",
+        "fr": "Animal a mangé"
       },
-      "icon": "activity",
-      "action_timeout_seconds": 15
+      "description": {
+        "en": "A SureFeed feeder saw a pet eat at least 1 g.",
+        "fr": "Un distributeur SureFeed a vu un animal manger au moins 1 g."
+      },
+      "fields": [
+        {
+          "key": "pet",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Pet",
+            "fr": "Animal"
+          }
+        },
+        {
+          "key": "feeder",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Feeder",
+            "fr": "Distributeur"
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "pet_name",
+          "type": "string",
+          "label": {
+            "en": "Pet name",
+            "fr": "Nom de l'animal"
+          }
+        },
+        {
+          "key": "feeder_name",
+          "type": "string",
+          "label": {
+            "en": "Feeder name",
+            "fr": "Nom du distributeur"
+          }
+        },
+        {
+          "key": "amount",
+          "type": "number",
+          "label": {
+            "en": "Grams eaten",
+            "fr": "Grammes mangés"
+          }
+        },
+        {
+          "key": "at",
+          "type": "string",
+          "label": {
+            "en": "Time (UTC)",
+            "fr": "Heure (UTC)"
+          }
+        }
+      ]
     }
   ]
 }
